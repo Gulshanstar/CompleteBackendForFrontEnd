@@ -11,5 +11,8 @@
   "description": "",
   "dependencies": {
     "underscore": "^1.13.7"
+  },
+  "devDependencies": {
+    "jshint": "^2.13.6"
   }
 }
