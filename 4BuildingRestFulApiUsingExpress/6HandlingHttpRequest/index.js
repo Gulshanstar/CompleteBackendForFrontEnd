@@ -9,7 +9,7 @@ const app = express();
 // middle ware ko process karta hai.
 app.use(express.json());
 
-courses = [
+let courses = [
     { 'id': 1, 'name': 'courses1' },
     { 'id': 2, 'name': 'courses2' },
     { 'id': 3, 'name': 'courses3' }
@@ -47,14 +47,26 @@ app.get('/api/courses/:CourseId', (req, res) => {
 
 });
 
-app.post('', (req, res) => {
-    const schema = {
-        name: Joi.string().min().required()
-    }
+app.post('/api/courses', (req, res) => {
+    // if (!req.body.name || req.body.name.length < 3) {
+    //     res.status(400).send('Name is required and character more than 3 required')
+    // return;
+    // }
 
-    const result = Joi.validate(req.body, schema)
-    if (!req.body.name || req.body.name.length < 3) {
-        res.status(400).send('Name is required and character more than 3 required')
+    // we cann't validate the input for complex ones easily to make it easy we can use 
+    // package name is --> joi
+    // after installing load joi using require.
+    const schema = Joi.object({
+        name: Joi.string().min(3).required(),
+
+    })
+
+    const result = schema.validate({ name: req.body.name })
+    console.log(result)
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message)
+        return
     }
 
     const course = {
@@ -67,5 +79,40 @@ app.post('', (req, res) => {
     courses.push(course);
     res.send(course);
 });
+
+
+app.put('/api/courses/:courseId', (req, res) => {
+    // Look up the courses
+    // if not existing it means 404 error.->The requested resource couldn’t be found on the server.
+    const course = courses.find(c => c.id === parseInt(req.params.courseId))
+    if (!course) res.send(400).send("the course with given id is not present")
+    // validate
+    // InValid 400 -> // 400 Bad Request: The server couldn’t understand the request 
+    // due to invalid syntax or parameters. 
+    const schema = Joi.object({
+        name: Joi.string().min(3).required(),
+
+    })
+
+    const result = schema.validate({ name: req.body.name })
+    console.log(result)
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message)
+        return
+    }
+    // update the courses
+    course.name = req.body.name;
+    courses.push(course.name)
+    // return the updated courses.
+    res.send(course)
+
+
+});
 port = process.env.PORT || 4500
 app.listen(port, () => { console.log(`Start listening on ${port} ......`) });
+
+
+// 1. Genai Complete
+// 2. complete Express (2 part)
+// 3. 
